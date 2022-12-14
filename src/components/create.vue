@@ -44,7 +44,8 @@
             cols="12"
             class="flex justify-end"
         >
-          <v-btn variant="elevated" color="primary" class="mx-2" @click="$emit('created', {...member, image: image[0]})">
+          <v-btn variant="elevated" color="primary" class="mx-2"
+                 @click="$emit('created', {...member, image: image[0]})">
             Add
           </v-btn>
           <v-btn class="mx-2" variant="text">
@@ -57,12 +58,17 @@
 </template>
 
 <script setup lang="ts">
-import {reactive} from "vue";
+import {PropType, reactive, ref} from "vue";
 import {Member} from "../interfaces/member";
 
 const valid = false;
+const props = defineProps({
+  member: {
+    type: Object as PropType<Member>,
+  }
+})
 
-const member: Member = reactive({} as Member);
+const member: Member = reactive({...props.member} as Member);
 let image = reactive([]);
 const rules = [
   (v: string) => !!v || 'Field is required'

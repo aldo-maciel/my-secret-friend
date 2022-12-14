@@ -6,7 +6,7 @@
         <span class="gg-add-r scale-150 m-2 cursor-pointer absolute right-0" title="Add new" @click="addNew"></span>
       </div>
 
-      <create v-if="attrs.isAdding" @created="addMember($event)"/>
+      <create v-if="attrs.isAdding" @created="addMember($event)" :member="attrs.edition"/>
 
       <v-divider class="my-2"/>
 
@@ -15,7 +15,7 @@
           mdi-account
         </v-icon>
         <div class="grid grid-cols-4 gap-8" v-if="members.length">
-          <v-card v-for="(it, index) in members" :key="it.name">
+          <v-card v-for="(it, index) in members" :key="it.name" @click="edit(it)">
             <v-img
                 height="200"
                 :src="`https://my-secret-friend.onrender.com/${it.image}`"
@@ -66,16 +66,21 @@ import Create from "./components/create.vue";
 let members: Member[] = reactive(JSON.parse(localStorage.getItem('members') || '[]'));
 
 let attrs = reactive({
-  isAdding: false
+  isAdding: false,
+  edition: {} as Member
 })
 
 // funcs
 const addNew = () => attrs.isAdding = true;
+const edit = (member: Member) => {
+  attrs.edition = member;
+  attrs.isAdding = true;
+}
 
 const addMember = async (member: Member) => {
   attrs.isAdding = false;
 
-  if (member.image) {
+  if (member.image && member.image !== attrs.edition.image) {
     const data = new FormData();
     data.append('file', member.image);
 
@@ -84,9 +89,21 @@ const addMember = async (member: Member) => {
       method: "POST"
     })
     member.image = await res.text();
+    attrs.edition.image = member.image;
   }
-  members.push(member);
+
+  if (attrs.edition.name) {
+    const find = members.find(it => it.name === attrs.edition.name);
+    if (find) {
+      find.name = attrs.edition.name;
+      find.image = attrs.edition.image;
+      find.phone = attrs.edition.phone;
+    }
+  } else {
+    members.push(member);
+  }
   localStorage.setItem('members', JSON.stringify(members));
+  attrs.edition = {} as Member;
 }
 
 const remove = (index: number) => {
