@@ -40,7 +40,7 @@ router.post("/", function (req, res) {
             },
             member.image ? {
               type: 'img',
-              attributes: {src: `http://localhost:3000${member.image}`},
+              attributes: {src: `https://my-secret-friend.onrender.com/${member.image}`},
             } : {},
           ],
         },

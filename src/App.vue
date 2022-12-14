@@ -18,7 +18,7 @@
           <v-card v-for="(it, index) in members" :key="it.name">
             <v-img
                 height="200"
-                :src="`http://localhost:3000${it.image}`"
+                :src="`https://my-secret-friend.onrender.com/${it.image}`"
                 cover
                 class="text-white"
                 crossorigin="anonymous"
@@ -79,7 +79,7 @@ const addMember = async (member: Member) => {
     const data = new FormData();
     data.append('file', member.image);
 
-    const res = await fetch("http://localhost:3000/upload", {
+    const res = await fetch("https://my-secret-friend.onrender.com/upload", {
       body: data,
       method: "POST"
     })
@@ -97,7 +97,7 @@ const remove = (index: number) => {
 const send = async (member: Member) => {
   const sortedList = JSON.parse(localStorage.getItem('sortedList') || '{}');
   console.log(sortedList[member.name])
-  const res = await fetch("http://localhost:3000", {
+  const res = await fetch("https://my-secret-friend.onrender.com/", {
     body: JSON.stringify(sortedList[member.name]),
     method: "POST",
     headers: {
@@ -105,9 +105,9 @@ const send = async (member: Member) => {
     }
   })
   const link = await res.text();
-  console.log(`http://localhost:3000/${link}`)
+  console.log(`https://my-secret-friend.onrender.com/${link}`)
 
-  window.open(`https://whatsa.me/${member.phone}/?t=Abra o link para ver seu amigo: http://localhost:3000/${link}`, 'blank')
+  window.open(`https://whatsa.me/${member.phone}/?t=Abra o link para ver seu amigo: https://my-secret-friend.onrender.com/${link}`, 'blank')
 }
 
 const getRandom = (current: Member): Member => {
