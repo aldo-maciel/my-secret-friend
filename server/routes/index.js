@@ -36,11 +36,11 @@ router.post("/", function (req, res) {
             {
               type: 'div',
               content: member.name,
-              attributes: {style: 'font-size: 35px; margin: 15px;'},
+              attributes: {style: 'font-size: 35px; margin: 15px; width: 100%'},
             },
             member.image ? {
               type: 'img',
-              attributes: {src: `https://my-secret-friend.onrender.com/${member.image}`, style: 'width: 350px; height: 350px'},
+              attributes: {src: `https://my-secret-friend.onrender.com/${member.image}`, style: 'width: 40%; height: 50%'},
             } : {},
           ],
         },
