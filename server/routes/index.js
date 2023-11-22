@@ -40,7 +40,7 @@ router.post("/", function (req, res) {
             },
             member.image ? {
               type: 'img',
-              attributes: {src: `https://my-secret-friend.onrender.com/${member.image}`, style: 'width: 40%; height: 50%'},
+              attributes: {src: `https://my-secret-friend.onrender.com/${member.image}`},
             } : {},
           ],
         },
