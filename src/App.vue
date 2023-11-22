@@ -6,7 +6,7 @@
         <span class="gg-add-r scale-150 m-2 cursor-pointer absolute right-0" title="Add new" @click="addNew"></span>
       </div>
 
-      <create v-if="attrs.isAdding" @created="addMember($event)" :member="attrs.edition"/>
+      <create v-if="attrs.isAdding" @created="addMember($event)" :member="attrs.edition" @cancel="cancel"/>
 
       <v-divider class="my-2"/>
 
@@ -15,7 +15,7 @@
           mdi-account
         </v-icon>
         <div class="grid grid-cols-4 gap-8" v-if="members.length">
-          <v-card v-for="(it, index) in members" :key="it.name" @click="edit(it)">
+          <v-card v-for="(it, index) in members" :key="it.name">
             <v-img
                 height="200"
                 :src="`https://my-secret-friend.onrender.com/${it.image}`"
@@ -33,6 +33,11 @@
                       class="gg-trash-empty scale-150 mx-3 cursor-pointer"
                       title="Remove from list"
                       @click="remove(index)"
+                  ></span>
+                  <span
+                    class="gg-pen mx-3 cursor-pointer"
+                    title="Edit"
+                    @click="edit(it)"
                   ></span>
                 </template>
 
@@ -75,6 +80,11 @@ const addNew = () => attrs.isAdding = true;
 const edit = (member: Member) => {
   attrs.edition = member;
   attrs.isAdding = true;
+}
+
+const cancel = () => {
+  attrs.edition = {} as Member;
+  attrs.isAdding = false;
 }
 
 const addMember = async (member: Member) => {

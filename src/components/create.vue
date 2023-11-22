@@ -48,7 +48,7 @@
                  @click="$emit('created', {...member, image: image[0]})">
             Add
           </v-btn>
-          <v-btn class="mx-2" variant="text">
+          <v-btn class="mx-2" variant="text" @click="$emit('cancel')">
             cancel
           </v-btn>
         </v-col>
