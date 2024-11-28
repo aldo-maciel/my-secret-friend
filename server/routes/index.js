@@ -40,7 +40,7 @@ router.post("/", function (req, res) {
             },
             member.image ? {
               type: 'img',
-              attributes: {src: `https://my-secret-friend.fly.dev/${member.image}`},
+              attributes: {src: `${ req.protocol }://${ req.hostname }/${member.image}`},
             } : {},
           ],
         },

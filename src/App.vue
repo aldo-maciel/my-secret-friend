@@ -18,7 +18,7 @@
           <v-card v-for="(it, index) in members" :key="it.name">
             <v-img
                 height="200"
-                :src="`https://my-secret-friend.fly.dev/${it.image}`"
+                :src="`${location.origin}/${it.image}`"
                 cover
                 class="text-white"
                 crossorigin="anonymous"
@@ -94,7 +94,7 @@ const addMember = async (member: Member) => {
     const data = new FormData();
     data.append('file', member.image);
 
-    const res = await fetch("https://my-secret-friend.fly.dev/upload", {
+    const res = await fetch(`${ location.origin }/upload`, {
       body: data,
       method: "POST"
     })
@@ -124,7 +124,7 @@ const remove = (index: number) => {
 const send = async (member: Member) => {
   const sortedList = JSON.parse(localStorage.getItem('sortedList') || '{}');
   console.log(sortedList[member.name])
-  const res = await fetch("https://my-secret-friend.fly.dev/", {
+  const res = await fetch(location.origin, {
     body: JSON.stringify(sortedList[member.name]),
     method: "POST",
     headers: {
@@ -132,9 +132,9 @@ const send = async (member: Member) => {
     }
   })
   const link = await res.text();
-  console.log(`https://my-secret-friend.fly.dev/${link}`)
+  console.log(`${location.origin}/${link}`)
 
-  window.open(`https://whatsa.me/${member.phone}/?t=Abra o link para ver seu amigo: https://my-secret-friend.fly.dev/${link}`, 'blank')
+  window.open(`https://whatsa.me/${member.phone}/?t=Abra o link para ver seu amigo: ${location.origin}/${link}`, 'blank')
 }
 
 const getRandom = (current: Member): Member => {
