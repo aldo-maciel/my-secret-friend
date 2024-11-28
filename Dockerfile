@@ -24,12 +24,14 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY package.json yarn.lock ./
+COPY server ./server
 RUN yarn install --frozen-lockfile --production=false
 
 # Copy application code
 COPY . .
 
 # Build application
+RUN yarn --cwd ./server/
 RUN yarn run build
 
 # Remove development dependencies
@@ -37,11 +39,11 @@ RUN yarn install --production=true
 
 
 # Final stage for app image
-FROM nginx
 
 # Copy built application
-COPY --from=build /app/dist /usr/share/nginx/html
+#COPY --from=build /app/dist /usr/share/nginx/html
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 80
-CMD [ "/usr/sbin/nginx", "-g", "daemon off;" ]
+#CMD [ "/usr/sbin/nginx", "-g", "daemon off;" ]
+CMD [ "npm", "run", "start", "--prefix", "server" ]
