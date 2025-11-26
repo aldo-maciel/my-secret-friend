@@ -19,7 +19,27 @@ router.post('/', function (req, res) {
   const html = new htmlCreator([
     {
       type: 'head',
-      content: [{ type: 'title', content: 'MY::SECRET::FRIEND' }]
+      content: [
+        { type: 'title', content: 'MY::SECRET::FRIEND' },
+        {
+          type: 'style',
+          content: `
+          .fade-element {
+            opacity: 1;
+            transition: opacity 1s ease-out;
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            font-size: 18px;
+          }
+          .fade-element.fading {
+            opacity: 0;
+          }
+        `
+        }
+      ]
     },
     {
       type: 'body',
@@ -36,13 +56,25 @@ router.post('/', function (req, res) {
             {
               type: 'div',
               content: member.name,
-              attributes: { style: 'font-size: 35px; margin: 15px; width: 100%' }
+              attributes: { style: 'font-size: 35px; margin: 15px; width: 100%', id: 'nameElement', class: 'fade-element' }
             },
             member.image ? {
               type: 'img',
-              attributes: { src: `${ req.protocol }://${ req.hostname }/${ member.image }` }
+              attributes: { src: `${ req.protocol }://${ req.hostname }/${ member.image }`, id: 'photoElement', class: 'fade-element' }
             } : {}
           ]
+        },
+        {
+          type: 'script',
+          content: `
+          setTimeout(function() {
+            document.getElementById('nameElement').classList.add('fading');
+            document.getElementById('photoElement').classList.add('fading');
+            setTimeout(function() {
+              window.location.reload();
+            }, 2000);
+          }, 30000);
+        `
         }
       ]
     }
@@ -70,7 +102,7 @@ router.get('/:html', (req, res) => {
         console.error(`Error deleting ${ htmlPath }:`, err)
       }
     })
-  }, 1000 * 60) // 1 minute
+  }, 1000 * 35) // 35 seconds
 })
 
 module.exports = router
