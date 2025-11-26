@@ -1,29 +1,29 @@
-const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const htmlCreator = require('html-creator');
-const fs = require("fs");
+const express = require('express')
+const router = express.Router()
+const multer = require('multer')
+const path = require('path')
+const htmlCreator = require('html-creator')
+const fs = require('fs')
 
-const upload = multer({dest: path.join('..', 'dist', 'uploads')});
+const upload = multer({ dest: path.join('..', 'dist', 'uploads') })
 
-router.get("/", function (req, res) {
+router.get('/', function (req, res) {
   res.json('working')
-});
-router.post("/upload", upload.single('file'), function (req, res) {
-  res.send(`/uploads/${req.file.filename}`);
 })
-router.post("/", function (req, res) {
-  const member = req.body;
+router.post('/upload', upload.single('file'), function (req, res) {
+  res.send(`uploads/${ req.file.filename }`)
+})
+router.post('/', function (req, res) {
+  const member = req.body
 
   const html = new htmlCreator([
     {
       type: 'head',
-      content: [{type: 'title', content: 'MY::SECRET::FRIEND'}]
+      content: [{ type: 'title', content: 'MY::SECRET::FRIEND' }]
     },
     {
       type: 'body',
-      attributes: {style: 'display: flex; width: 100vw; height: 100vh; justify-content: center; padding: 10px; text-align: center;'},
+      attributes: { style: 'display: flex; width: 100vw; height: 100vh; justify-content: center; padding: 10px; text-align: center;' },
       content: [
         {
           type: 'div',
@@ -31,27 +31,44 @@ router.post("/", function (req, res) {
             {
               type: 'div',
               content: `Seu Amigo Secreto:`,
-              attributes: {style: 'font-size: 25px;'},
+              attributes: { style: 'font-size: 25px;' }
             },
             {
               type: 'div',
               content: member.name,
-              attributes: {style: 'font-size: 35px; margin: 15px; width: 100%'},
+              attributes: { style: 'font-size: 35px; margin: 15px; width: 100%' }
             },
             member.image ? {
               type: 'img',
-              attributes: {src: `${ req.protocol }://${ req.hostname }/${member.image}`},
-            } : {},
-          ],
-        },
-      ],
-    },
-  ]);
+              attributes: { src: `${ req.protocol }://${ req.hostname }/${ member.image }` }
+            } : {}
+          ]
+        }
+      ]
+    }
+  ])
 
-  const fileName = `${Math.random().toString(36) + Date.now().toString(36)}.html`;
-  fs.writeFileSync(path.join(__dirname, '..', '..', 'dist', fileName), html.renderHTML());
+  const fileName = `${ Math.random().toString(36) + Date.now().toString(36) }.html`
+  fs.writeFileSync(path.join(__dirname, '..', '..', 'dist', fileName), html.renderHTML())
 
-  res.send(fileName);
+  res.send(fileName)
+})
+router.get('/:html', (req, res) => {
+  const filename = req.params.html
+  console.log('HTML file requested:', filename)
+  const htmlPath = path.join(__dirname, '..', '..', 'dist', filename)
+
+  if (!fs.existsSync(htmlPath)) {
+    return res.status(404).send('Você já abriu o link! Não é permitido abri-ló novamente.')
+  }
+
+  res.sendFile(htmlPath)
+
+  fs.rm(htmlPath, { recursive: false }, (err) => {
+    if (err) {
+      console.error(`Error deleting ${ htmlPath }:`, err)
+    }
+  })
 })
 
-module.exports = router;
+module.exports = router

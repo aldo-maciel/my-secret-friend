@@ -96,7 +96,7 @@ const addMember = async (member: Member) => {
     const data = new FormData();
     data.append('file', member.image);
 
-    const res = await fetch(`${ location.origin }/upload`, {
+    const res = await fetch(`${ location.origin }/friend/upload`, {
       body: data,
       method: "POST"
     })
@@ -126,7 +126,7 @@ const remove = (index: number) => {
 const send = async (member: Member) => {
   const sortedList = JSON.parse(localStorage.getItem('sortedList') || '{}');
   console.log(sortedList[member.name])
-  const res = await fetch(location.origin, {
+  const res = await fetch(`${location.origin}/friend`, {
     body: JSON.stringify(sortedList[member.name]),
     method: "POST",
     headers: {
@@ -134,9 +134,9 @@ const send = async (member: Member) => {
     }
   })
   const link = await res.text();
-  console.log(`${location.origin}/${link}`)
+  console.log(`${location.origin}/friend/${link}`)
 
-  window.open(`https://whatsa.me/${member.phone}/?t=Abra o link para ver seu amigo: ${location.origin}/${link}`, 'blank')
+  window.open(`https://whatsa.me/${member.phone}/?t=Abra o link para ver seu amigo: ${location.origin}/friend/${link}`, 'blank')
 }
 
 const getRandom = (current: Member): Member => {
