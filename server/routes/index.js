@@ -5,7 +5,7 @@ const path = require('path')
 const htmlCreator = require('html-creator')
 const fs = require('fs')
 
-const upload = multer({ dest: path.join('..', 'dist', 'uploads') })
+const upload = multer({ dest: path.join('..', 'public', 'uploads') })
 
 router.get('/', function (req, res) {
   res.json('working')
@@ -27,15 +27,12 @@ router.post('/', function (req, res) {
           .fade-element {
             opacity: 1;
             transition: opacity 1s ease-out;
-            background-color: #3498db;
-            color: white;
-            padding: 20px;
-            margin: 20px;
             text-align: center;
             font-size: 18px;
           }
           .fade-element.fading {
             opacity: 0;
+            display: none;
           }
         `
         }
@@ -81,14 +78,14 @@ router.post('/', function (req, res) {
   ])
 
   const fileName = `${ Math.random().toString(36) + Date.now().toString(36) }.html`
-  fs.writeFileSync(path.join(__dirname, '..', '..', 'dist', fileName), html.renderHTML())
+  fs.writeFileSync(path.join(__dirname, '..', '..', 'public', fileName), html.renderHTML())
 
   res.send(fileName)
 })
 router.get('/:html', (req, res) => {
   const filename = req.params.html
   console.log('HTML file requested:', filename)
-  const htmlPath = path.join(__dirname, '..', '..', 'dist', filename)
+  const htmlPath = path.join(__dirname, '..', '..', 'public', filename)
 
   if (!fs.existsSync(htmlPath)) {
     return res.status(404).send('Você já abriu o link! Não é permitido abri-ló novamente.')
@@ -102,7 +99,7 @@ router.get('/:html', (req, res) => {
         console.error(`Error deleting ${ htmlPath }:`, err)
       }
     })
-  }, 1000 * 35) // 35 seconds
+  }, 1000 * 32) // 32 seconds
 })
 
 module.exports = router
