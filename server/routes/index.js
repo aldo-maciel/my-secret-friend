@@ -64,11 +64,13 @@ router.get('/:html', (req, res) => {
 
   res.sendFile(htmlPath)
 
-  fs.rm(htmlPath, { recursive: false }, (err) => {
-    if (err) {
-      console.error(`Error deleting ${ htmlPath }:`, err)
-    }
-  })
+  setTimeout(() => {
+    fs.rm(htmlPath, { recursive: false }, (err) => {
+      if (err) {
+        console.error(`Error deleting ${ htmlPath }:`, err)
+      }
+    })
+  }, 1000 * 60) // 1 minute
 })
 
 module.exports = router
