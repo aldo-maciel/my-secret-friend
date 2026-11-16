@@ -17,22 +17,22 @@
         <div class="grid grid-cols-4 gap-8" v-if="members.length">
           <v-card v-for="(it, index) in members" :key="it.name">
             <v-img
-                height="200"
-                :src="`${url}/${it.image}`"
-                cover
-                class="text-white"
-                crossorigin="anonymous"
+              height="200"
+              :src="`${url}/${it.image}`"
+              cover
+              class="text-white"
+              crossorigin="anonymous"
             >
               <v-toolbar
-                  color="rgba(0, 0, 0, 0)"
-                  theme="dark"
-                  class="bg-indigo-600 bg-opacity-30"
+                color="rgba(0, 0, 0, 0)"
+                theme="dark"
+                class="bg-indigo-600 bg-opacity-30"
               >
                 <template v-slot:prepend>
                   <span
-                      class="gg-trash-empty scale-150 mx-3 cursor-pointer"
-                      title="Remove from list"
-                      @click="remove(index)"
+                    class="gg-trash-empty scale-150 mx-3 cursor-pointer"
+                    title="Remove from list"
+                    @click="remove(index)"
                   ></span>
                   <span
                     class="gg-pen mx-3 cursor-pointer"
@@ -56,19 +56,19 @@
       </section>
     </div>
     <div
-        class="absolute shadow-2xl rounded-full bg-black bottom-32 right-4 w-12 h-12 flex justify-center items-center"
-        @click="sort">
+      class="absolute shadow-2xl rounded-full bg-black bottom-32 right-4 w-12 h-12 flex justify-center items-center"
+      @click="sort">
       <span class="gg-sort-az scale-150 cursor-pointer"></span>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import {Member} from "./interfaces/member";
-import Create from "./components/create.vue";
+import { Member } from './interfaces/member'
+import Create from './components/create.vue'
 
 // attrs
-let members: Member[] = reactive(JSON.parse(localStorage.getItem('members') || '[]'));
+let members: Member[] = reactive(JSON.parse(localStorage.getItem('members') || '[]'))
 
 let attrs = reactive({
   isAdding: false,
@@ -78,92 +78,115 @@ let attrs = reactive({
 const url = ref(window.location.origin)
 
 // funcs
-const addNew = () => attrs.isAdding = true;
+const addNew = () => {
+  attrs.edition = {} as Member
+  attrs.isAdding = true
+}
+
 const edit = (member: Member) => {
-  attrs.edition = member;
-  attrs.isAdding = true;
+  attrs.edition = { ...member }
+  attrs.isAdding = true
 }
 
 const cancel = () => {
-  attrs.edition = {} as Member;
-  attrs.isAdding = false;
+  attrs.edition = {} as Member
+  attrs.isAdding = false
 }
 
 const addMember = async (member: Member) => {
-  attrs.isAdding = false;
+  attrs.isAdding = false
 
-  if (member.image && member.image !== attrs.edition.image) {
-    const data = new FormData();
-    data.append('file', member.image);
+  if (member.image && typeof member.image !== 'string') {
+    const data = new FormData()
+    data.append('file', member.image)
 
     const res = await fetch(`${ location.origin }/friend/upload`, {
       body: data,
-      method: "POST"
+      method: 'POST'
     })
-    member.image = await res.text();
-    attrs.edition.image = member.image;
+    member.image = await res.text()
+  } else if (!member.image && attrs.edition.image) {
+    member.image = attrs.edition.image
   }
 
   if (attrs.edition.name) {
-    const find = members.find(it => it.name === attrs.edition.name);
+    const find = members.find(it => it.name === attrs.edition.name)
     if (find) {
-      find.name = attrs.edition.name;
-      find.image = attrs.edition.image;
-      find.phone = attrs.edition.phone;
+      find.name = member.name
+      find.image = member.image
+      find.phone = member.phone
     }
   } else {
-    members.push(member);
+    members.push(member)
   }
-  localStorage.setItem('members', JSON.stringify(members));
-  attrs.edition = {} as Member;
+  localStorage.setItem('members', JSON.stringify(members))
+  attrs.edition = {} as Member
 }
 
 const remove = (index: number) => {
-  members.splice(index, 1);
-  localStorage.setItem('members', JSON.stringify(members));
+  members.splice(index, 1)
+  localStorage.setItem('members', JSON.stringify(members))
 }
 
 const send = async (member: Member) => {
-  const sortedList = JSON.parse(localStorage.getItem('sortedList') || '{}');
-  console.log(sortedList[member.name])
-  const res = await fetch(`${location.origin}/friend`, {
-    body: JSON.stringify(sortedList[member.name]),
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  const link = await res.text();
-  console.log(`${location.origin}/friend/${link}`)
+  const sortedList = JSON.parse(localStorage.getItem('sortedList') || '{}')
+  const recipient = sortedList[member.name]
 
-  window.open(`https://whatsa.me/${member.phone}/?t=Abra o link para ver seu amigo: ${location.origin}/friend/${link}`, 'blank')
-}
-
-const getRandom = (current: Member): Member => {
-  const list = members.filter(it => !it.isFriend && current.name !== it.name);
-  const index = Math.round(Math.random() * list.length)
-  const member = list.at(index);
-
-  if (!member) {
-    return getRandom(current);
+  if (!recipient) {
+    alert('Please sort the Secret Friend list before sending messages.')
+    return
   }
 
-  return member;
+  try {
+    const res = await fetch(`${ location.origin }/friend`, {
+      body: JSON.stringify(recipient),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!res.ok) {
+      throw new Error('Failed to generate secret friend link.')
+    }
+
+    const link = await res.text()
+    const message = encodeURIComponent(`Abra o link para ver seu amigo: ${ location.origin }/friend/${ link }`)
+    window.open(`https://whatsa.me/${ member.phone }/?t=${ message }`, '_blank')
+  } catch (error) {
+    console.error('Error sending friend link:', error)
+    alert('An error occurred while generating the friend link. Please try again.')
+  }
 }
 
 const sort = () => {
-  members.forEach(it => it.isFriend = false);
-  localStorage.setItem('sortedList', JSON.stringify(members.reduce((sorted, member, currentIndex) => {
-    if (!sorted[member.name]) {
-      const random = getRandom(member);
-      if (random) {
-        random.isFriend = true
-      }
-      sorted[member.name] = random;
-    }
+  // Prevent execution when the group size cannot produce a valid exchange
+  if (members.length < 2) {
+    alert('At least 2 members are required to generate a Secret Friend draw.')
+    return
+  }
 
-    return sorted;
-  }, {} as Record<string, any>)));
+  // Create a shallow copy of members to avoid mutating reactive state
+  const pool = [...members]
+
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * i)
+    const temp = pool[i]
+    pool[i] = pool[j]
+    pool[j] = temp
+  }
+
+  // Map each member to the next person in the circle (last person gives to the first)
+  const list: Record<string, Member> = {}
+  for (let i = 0; i < pool.length; i++) {
+    const giver = pool[i]
+    const receiver = pool[(i + 1) % pool.length]
+    list[giver.name] = receiver
+  }
+
+  localStorage.setItem('sortedList', JSON.stringify(list))
+  console.log('Secret Friend list successfully generated:', list)
+  alert('Secret Friend list successfully generated!')
 }
 </script>
 

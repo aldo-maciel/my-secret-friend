@@ -45,7 +45,7 @@
             class="flex justify-end"
         >
           <v-btn variant="elevated" color="primary" class="mx-2"
-                 @click="$emit('created', {...member, image: image[0]})">
+                 @click="save">
             Add
           </v-btn>
           <v-btn class="mx-2" variant="text" @click="$emit('cancel')">
@@ -61,7 +61,8 @@
 import {PropType, reactive, ref} from "vue";
 import {Member} from "../interfaces/member";
 
-const valid = false;
+const valid = ref(false);
+const emit = defineEmits(['created', 'cancel']);
 const props = defineProps({
   member: {
     type: Object as PropType<Member>,
@@ -69,10 +70,15 @@ const props = defineProps({
 })
 
 const member: Member = reactive({...props.member} as Member);
-let image = reactive([]);
+const image = ref<any[]>([]);
 const rules = [
   (v: string) => !!v || 'Field is required'
 ]
+
+const save = () => {
+  const selectedImage = image.value && image.value.length ? image.value[0] : member.image
+  emit('created', {...member, image: selectedImage})
+}
 </script>
 
 <style scoped>
