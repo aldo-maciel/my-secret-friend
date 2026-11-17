@@ -152,7 +152,8 @@ const send = async (member: Member) => {
 
     const link = await res.text()
     const message = encodeURIComponent(`Abra o link para ver seu amigo: ${ location.origin }/friend/${ link }`)
-    window.open(`https://whatsa.me/${ member.phone }/?t=${ message }`, '_blank')
+    const phone = `${ member.phone }`.replace(/\+55/g, '').replace(/\D/g, '')
+    window.open(`https://wa.me/${ phone }?text=${ message }`, '_blank')
   } catch (error) {
     console.error('Error sending friend link:', error)
     alert('An error occurred while generating the friend link. Please try again.')
